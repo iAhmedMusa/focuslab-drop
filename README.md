@@ -9,7 +9,11 @@ Full documentation is in [docs/](docs/README.md).
 
 Files are saved as `Prints/<date>/<name>_<phone>_<HHMM>/<file>`. Name and phone are optional; with neither, the folder is `Guest_<HHMM>`.
 
-## Run
+## Mac app
+
+`./macos/build.sh` builds `dist/FocusLabDrop.dmg`: a menu-bar app with an on/off switch, status light, folder picker, printable QR poster and launch at login. See [docs/macos-app.md](docs/macos-app.md).
+
+## Run (command line)
 
 Pick the binary for the counter computer (build below, or `go run .`):
 

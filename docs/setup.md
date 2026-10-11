@@ -1,6 +1,6 @@
 # Setup
 
-Do this once at the shop.
+Do this once at the shop. On a Mac, the [Mac app](macos-app.md) does steps 1, 4 and 5 for you (it runs the server, picks the folder, and prints the QR poster). Steps 2 and 3 still apply.
 
 ## 1. Get the program
 
@@ -54,6 +54,7 @@ Options:
 | `-dir` | `~/Prints` | Folder where photos are saved |
 | `-port` | `6789` | Port to listen on |
 | `-db` | in the user config folder | Staff login database |
+| `-exit-on-stdin-close` | off | Exit when standard input closes. The Mac app uses this so a crashed app never leaves a server running. |
 
 ## 5. Print the QR codes
 
