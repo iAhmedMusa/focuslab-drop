@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D1B2A">
+<title>Send photos - Focus Digital Color Lab</title>
+<link rel="icon" href="/drop/assets/favicon.ico">
+<link rel="stylesheet" href="/drop/assets/app.css">
+<style>
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  .rise { animation: rise .5s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+  .banner { margin: 0 0 28px; }
+  .banner img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 8; object-fit: cover; border-radius: var(--r); }
+  h1 { font-size: clamp(1.75rem, 7vw, 2.5rem); font-weight: 700; max-width: 16ch; }
+  .lede { margin-top: 12px; color: var(--muted); max-width: 46ch; }
+
+  .panel { margin-top: 28px; display: grid; gap: 20px; }
+  .two { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 440px) { .two { grid-template-columns: 1fr 1fr; } }
+  .panel .btn { width: 100%; }
+
+  .actions {
+    position: sticky; bottom: 0; z-index: 2;
+    display: grid; gap: 12px; margin-top: 16px;
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+    background: var(--bg);
+  }
+  .overall { display: grid; gap: 8px; }
+  .overall p { font-size: .9rem; color: var(--muted); }
+  .row2 { display: grid; gap: 12px; grid-template-columns: 1fr auto; }
+  #queue { margin-top: 8px; }
+
+  .files { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 12px; }
+  .file {
+    display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center;
+    padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    animation: rise .35s ease-out both;
+  }
+  .thumb {
+    width: 56px; height: 56px; border-radius: var(--r-sm); overflow: hidden;
+    background: var(--line); display: grid; place-items: center;
+    font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .meta { min-width: 0; display: grid; gap: 6px; }
+  .name { font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sub { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--muted); }
+  .file[data-state="error"] .status { color: var(--err); font-weight: 600; }
+  .file[data-state="done"] .status { color: var(--ok); font-weight: 600; }
+  .side button { min-height: 44px; }
+
+  .alert { padding: 14px 16px; border-radius: var(--r); border: 1.5px solid var(--err); color: var(--err); font-weight: 600; margin-top: 20px; }
+  .skipped { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+
+  .done { margin-top: 28px; display: grid; gap: 16px; justify-items: start; }
+  .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--ok); position: relative; }
+  .tick::after {
+    content: ""; position: absolute; left: 22px; top: 12px; width: 14px; height: 28px;
+    border: solid var(--bg); border-width: 0 5px 5px 0; transform: rotate(45deg);
+  }
+  .foot { margin-top: 40px; font-size: .85rem; color: var(--muted); max-width: 46ch; }
+</style>
+</head>
+<body>
+<header class="top">
+  <img src="/drop/assets/logo-192x192.png" width="40" height="40" alt="">
+  <b>Focus Digital Color Lab</b>
+</header>
+
+<main class="wrap">
+  <div id="hero">
+  <figure class="banner rise" style="--i:0">
+    <img src="/drop/assets/shelf.jpg" width="1600" height="1200" alt="Photo albums and frames on the shelves at our shop">
+  </figure>
+
+  <h1 class="rise" style="--i:1">Send your photos for printing</h1>
+  <p class="lede rise" style="--i:2">Choose photos from your gallery or files. They reach our print desk at full quality.</p>
+  </div>
+
+  <section id="pick" class="panel rise" style="--i:3">
+    <div class="two">
+      <div class="field">
+        <label for="name">Your name</label>
+        <input id="name" name="name" autocomplete="name" maxlength="40" placeholder="Optional">
+        <span class="hint">Helps us find your order.</span>
+      </div>
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Optional">
+        <span class="hint">Only if you want us to call.</span>
+      </div>
+    </div>
+    <button id="choose" class="btn btn-primary" type="button">Choose photos</button>
+  </section>
+
+  <input id="file" type="file" multiple accept="image/*,.heic,.heif,.pdf,application/pdf" hidden>
+
+  <p id="alert" class="alert" role="alert" hidden></p>
+
+  <section id="queue" hidden>
+    <ul id="list" class="files"></ul>
+    <p id="skipped" class="skipped" hidden></p>
+    <div class="actions">
+      <div class="overall">
+        <div id="overallBar" class="bar" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+        <p id="overallText" aria-live="polite"></p>
+      </div>
+      <div class="row2">
+        <button id="send" class="btn btn-primary" type="button">Send photos</button>
+        <button id="add" class="btn btn-ghost" type="button">Add more</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="done" class="done" hidden>
+    <div class="tick" aria-hidden="true"></div>
+    <h2 id="doneTitle">Photos received</h2>
+    <p class="lede">Our team will print them. You can close this page.</p>
+    <button id="more" class="btn btn-ghost" type="button">Send more</button>
+  </section>
+
+  <p class="foot">Photos go straight to the computer at our counter. Nothing is sent over the internet.</p>
+</main>
+
+<script>
+(() => {
+  const MAX = 50 * 1024 * 1024;
+  const OK = /\.(jpe?g|png|heic|heif|webp|tiff?|pdf)$/i;
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => n < 1048576 ? Math.max(1, Math.round(n / 1024)) + ' KB' : (n / 1048576).toFixed(1) + ' MB';
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+
+  let items = [];
+  let started = false, busy = false, halted = false, sentBefore = 0;
+
+  const seen = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      seen.unobserve(e.target);
+      const it = items.find((i) => i.li === e.target);
+      if (it && it.file.type !== 'application/pdf') {
+        it.url = URL.createObjectURL(it.file);
+        const img = document.createElement('img');
+        img.alt = '';
+        img.decoding = 'async';
+        img.onerror = () => { img.remove(); it.thumb.textContent = ext(it.file.name); };
+        img.src = it.url;
+        it.thumb.textContent = '';
+        it.thumb.append(img);
+      }
+    }
+  }, { rootMargin: '200px' });
+
+  const ext = (n) => (n.split('.').pop() || '').slice(0, 4);
+
+  function showAlert(msg) { $('alert').textContent = msg; $('alert').hidden = !msg; }
+
+  function addFiles(list) {
+    let skipped = 0;
+    for (const file of list) {
+      const dupe = items.some((i) => i.file.name === file.name && i.file.size === file.size && i.file.lastModified === file.lastModified);
+      if (dupe) continue;
+      if (!OK.test(file.name) || file.size === 0) { skipped++; continue; }
+      const it = { file, state: 'queued', loaded: 0 };
+      if (file.size > MAX) { it.state = 'error'; it.msg = 'Larger than 50 MB'; it.fatal = true; }
+      items.push(it);
+      build(it);
+    }
+    const s = $('skipped');
+    s.hidden = !skipped;
+    s.textContent = skipped ? plural(skipped, 'file') + ' skipped (only photos and PDFs can be sent).' : '';
+    showAlert('');
+    refresh();
+  }
+
+  function build(it) {
+    const li = document.createElement('li');
+    li.className = 'file';
+    li.innerHTML = '<div class="thumb"></div><div class="meta"><div class="name"></div>' +
+      '<div class="sub"><span class="size"></span><span class="status"></span></div>' +
+      '<div class="bar"><i></i></div></div><div class="side"></div>';
+    li.querySelector('.name').textContent = it.file.name;
+    li.querySelector('.size').textContent = fmt(it.file.size);
+    it.li = li;
+    it.thumb = li.querySelector('.thumb');
+    it.thumb.textContent = ext(it.file.name);
+    it.bar = li.querySelector('.bar');
+    it.status = li.querySelector('.status');
+    it.side = li.querySelector('.side');
+    $('list').append(li);
+    seen.observe(li);
+  }
+
+  function paint(it) {
+    it.li.dataset.state = it.state;
+    const pct = Math.min(1, it.loaded / it.file.size);
+    it.bar.style.setProperty('--p', it.state === 'done' ? 1 : pct);
+    it.bar.classList.toggle('done', it.state === 'done');
+    it.status.textContent = {
+      queued: 'Ready',
+      uploading: pct >= 1 ? 'Saving' : 'Sending ' + Math.round(pct * 100) + '%',
+      done: 'Sent',
+      error: it.msg || 'Failed',
+    }[it.state];
+    it.side.textContent = '';
+    if (it.state === 'queued' && !busy) side(it, 'Remove', () => remove(it));
+    if (it.state === 'error' && !it.fatal && !busy && !halted) side(it, 'Retry', send);
+    if (it.state === 'error' && it.fatal && !busy) side(it, 'Remove', () => remove(it));
+  }
+
+  function side(it, label, fn) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn btn-ghost btn-small';
+    b.textContent = label;
+    b.onclick = fn;
+    it.side.append(b);
+  }
+
+  function remove(it) {
+    seen.unobserve(it.li);
+    if (it.url) URL.revokeObjectURL(it.url);
+    it.li.remove();
+    items = items.filter((i) => i !== it);
+    refresh();
+  }
+
+  function refresh() {
+    const live = items.filter((i) => !i.fatal);
+    const total = live.reduce((a, i) => a + i.file.size, 0);
+    const loaded = live.reduce((a, i) => a + (i.state === 'done' ? i.file.size : Math.min(i.loaded, i.file.size)), 0);
+    const done = live.filter((i) => i.state === 'done').length;
+    const pending = live.filter((i) => i.state === 'queued' || i.state === 'error').length;
+    const pct = total ? loaded / total : 0;
+
+    $('queue').hidden = items.length === 0;
+    $('pick').hidden = items.length > 0;
+    $('hero').hidden = items.length > 0;
+    $('overallBar').firstElementChild.style.setProperty('--p', pct);
+    $('overallBar').setAttribute('aria-valuenow', Math.round(pct * 100));
+    $('overallText').textContent = busy || done
+      ? done + ' of ' + live.length + ' sent (' + Math.round(pct * 100) + '%)'
+      : plural(live.length, 'file') + ' ready, ' + fmt(total);
+    const send = $('send');
+    send.disabled = busy || halted || pending === 0;
+    send.textContent = busy ? 'Sending...' : pending ? (done ? 'Send the rest' : 'Send ' + plural(pending, 'photo')) : 'Send photos';
+    $('add').disabled = busy;
+    items.forEach(paint);
+  }
+
+  function upload(it) {
+    return new Promise((resolve) => {
+      const x = new XMLHttpRequest();
+      it.state = 'uploading';
+      it.loaded = 0;
+      it.msg = '';
+      x.open('POST', '/drop/upload');
+      x.upload.onprogress = (e) => { it.loaded = e.loaded; refresh(); };
+      x.onload = () => {
+        let j = {};
+        try { j = JSON.parse(x.responseText); } catch (_) {}
+        if (x.status === 200) {
+          it.state = 'done';
+        } else {
+          it.state = 'error';
+          it.msg = j.error || 'Could not send. Tap Retry.';
+          if (x.status === 401) { halted = true; showAlert(it.msg); }
+          if (x.status === 415 || x.status === 413) it.fatal = true;
+        }
+        resolve();
+      };
+      x.onerror = () => { it.state = 'error'; it.msg = 'Connection lost. Tap Retry.'; resolve(); };
+      const fd = new FormData();
+      fd.append('file', it.file, it.file.name);
+      x.send(fd);
+    });
+  }
+
+  async function send() {
+    if (busy || halted) return;
+    busy = true;
+    showAlert('');
+    refresh();
+    try {
+      if (!started) {
+        const r = await fetch('/drop/start', { method: 'POST', body: new URLSearchParams({ name: $('name').value, phone: $('phone').value }) });
+        if (!r.ok) throw new Error('start');
+        started = true;
+      }
+      const todo = items.filter((i) => !i.fatal && (i.state === 'queued' || i.state === 'error'));
+      let k = 0;
+      const worker = async () => { while (k < todo.length && !halted) await upload(todo[k++]); };
+      await Promise.all([worker(), worker(), worker()]);
+    } catch (_) {
+      showAlert('Could not reach the lab computer. Check you are on our Wi-Fi and try again.');
+    }
+    busy = false;
+    refresh();
+    const live = items.filter((i) => !i.fatal);
+    if (live.length && live.every((i) => i.state === 'done')) finish(live.length);
+  }
+
+  function finish(n) {
+    sentBefore += n;
+    $('doneTitle').textContent = plural(sentBefore, 'photo') + ' received';
+    $('queue').hidden = true;
+    $('done').hidden = false;
+  }
+
+  function reset() {
+    for (const it of items) { seen.unobserve(it.li); if (it.url) URL.revokeObjectURL(it.url); }
+    items = [];
+    $('list').textContent = '';
+    $('done').hidden = true;
+    $('skipped').hidden = true;
+    refresh();
+  }
+
+  $('choose').onclick = $('add').onclick = () => $('file').click();
+  $('file').onchange = (e) => { addFiles(Array.from(e.target.files)); e.target.value = ''; };
+  $('send').onclick = send;
+  $('more').onclick = () => { reset(); $('file').click(); };
+  window.addEventListener('beforeunload', (e) => { if (busy) { e.preventDefault(); e.returnValue = ''; } });
+  refresh();
+})();
+</script>
+</body>
+</html>

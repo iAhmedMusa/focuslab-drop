@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Print counter - Focus Digital Color Lab</title>
+<link rel="icon" href="/drop/assets/favicon.ico">
+<link rel="stylesheet" href="/drop/assets/app.css">
+<style>
+  .top, .wrap { max-width: 880px; }
+  .info { display: grid; gap: 4px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); font-size: .9rem; }
+  .info b { font-weight: 600; }
+  .info code { font: 500 .9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
+  h2 { font-size: 1.25rem; margin: 28px 0 12px; }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .item {
+    display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center;
+    padding: 14px 16px; background: var(--surface); border: 1px solid var(--line);
+    border-left: 4px solid var(--line); border-radius: var(--r);
+    transition: border-color .3s;
+  }
+  .item.fresh { border-left-color: var(--gold); }
+  .who { font-weight: 700; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; }
+  .what { font-size: .88rem; color: var(--muted); }
+  .empty { padding: 28px 16px; text-align: center; color: var(--muted); border: 1.5px dashed var(--line); border-radius: var(--r); }
+  .conn { font-size: .85rem; color: var(--muted); }
+  .conn.bad { color: var(--err); font-weight: 600; }
+</style>
+</head>
+<body>
+<header class="top">
+  <img src="/drop/assets/logo-192x192.png" width="40" height="40" alt="">
+  <b>Print counter</b>
+  <span class="grow"></span>
+  <span id="conn" class="conn" aria-live="polite"></span>
+  <button id="sound" class="btn btn-ghost btn-small" type="button" aria-pressed="false">Sound off</button>
+</header>
+
+<main class="wrap">
+  <div class="info">
+    <span><b>Saving to</b> <code id="dir"></code></span>
+    <span><b>Customer link</b> <code id="urls"></code></span>
+  </div>
+
+  <h2>Today</h2>
+  <ul id="list" class="list"></ul>
+  <p id="empty" class="empty" hidden>No photos yet today. New uploads appear here as customers send them.</p>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => n < 1048576 ? Math.max(1, Math.round(n / 1024)) + ' KB' : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB';
+  const hhmm = (d) => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const rows = new Map(); // folder -> {files, bytes, at, li}
+  let audio = null, soundOn = false, lastBeep = 0;
+  try { soundOn = localStorage.getItem('fl_sound') === '1'; } catch (_) {}
+
+  function label(folder) {
+    const base = folder.split('/').pop();
+    return base.replace(/_\d{4}(-\d+)?$/, '').replace(/_/g, ' ');
+  }
+  function started(folder) {
+    const m = folder.match(/_(\d{2})(\d{2})(-\d+)?$/);
+    return m ? m[1] + ':' + m[2] : '';
+  }
+
+  function draw(r, folder) {
+    if (!r.li) {
+      r.li = document.createElement('li');
+      r.li.className = 'item';
+      r.li.innerHTML = '<div><div class="who"></div><div class="what"></div></div>';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-primary btn-small';
+      b.textContent = 'Open folder';
+      b.onclick = () => fetch('/lab-counter/open', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder }) });
+      r.li.append(b);
+    }
+    r.li.querySelector('.who').textContent = label(folder);
+    r.li.querySelector('.what').textContent =
+      r.files + (r.files === 1 ? ' file, ' : ' files, ') + fmt(r.bytes) + ', last at ' + hhmm(r.at) +
+      (started(folder) ? ', started ' + started(folder) : '');
+  }
+
+  function render() {
+    const sorted = [...rows.entries()].sort((a, b) => new Date(b[1].at) - new Date(a[1].at));
+    $('list').replaceChildren(...sorted.map(([f, r]) => r.li));
+    $('empty').hidden = rows.size > 0;
+  }
+
+  async function load() {
+    const res = await fetch('/lab-counter/api/info');
+    if (res.status === 401) { location.href = '/lab-counter/login'; return; }
+    const d = await res.json();
+    $('dir').textContent = d.dir;
+    $('urls').textContent = d.urls.length ? d.urls.join('   ') : 'Not connected to a network';
+    for (const s of d.sessions) {
+      const r = rows.get(s.folder) || {};
+      Object.assign(r, { files: s.files, bytes: s.bytes, at: s.at });
+      rows.set(s.folder, r);
+      draw(r, s.folder);
+    }
+    render();
+  }
+
+  function beep() {
+    const now = Date.now();
+    if (!soundOn || !audio || now - lastBeep < 3000) return;
+    lastBeep = now;
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = 'sine'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.2, audio.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.35);
+    o.connect(g); g.connect(audio.destination);
+    o.start(); o.stop(audio.currentTime + 0.35);
+  }
+
+  function live() {
+    const es = new EventSource('/lab-counter/events');
+    es.onopen = () => { $('conn').textContent = 'Live'; $('conn').className = 'conn'; load(); };
+    es.onerror = () => { $('conn').textContent = 'Reconnecting'; $('conn').className = 'conn bad'; };
+    es.onmessage = (m) => {
+      const e = JSON.parse(m.data);
+      const r = rows.get(e.folder) || { files: 0, bytes: 0 };
+      r.files++; r.bytes += e.size; r.at = e.at;
+      rows.set(e.folder, r);
+      draw(r, e.folder);
+      render();
+      r.li.classList.add('fresh');
+      setTimeout(() => r.li.classList.remove('fresh'), 4000);
+      beep();
+    };
+  }
+
+  function paintSound() {
+    $('sound').textContent = soundOn ? 'Sound on' : 'Sound off';
+    $('sound').setAttribute('aria-pressed', soundOn);
+  }
+  $('sound').onclick = () => {
+    soundOn = !soundOn;
+    if (soundOn && !audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (soundOn && audio.state === 'suspended') audio.resume();
+    try { localStorage.setItem('fl_sound', soundOn ? '1' : '0'); } catch (_) {}
+    paintSound();
+    if (soundOn) { lastBeep = 0; beep(); }
+  };
+  // Browsers only allow audio after a click, so a saved "on" stays silent until the first click anywhere.
+  document.addEventListener('click', () => {
+    if (soundOn && !audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+  }, { once: true });
+
+  paintSound();
+  load();
+  live();
+})();
+</script>
+</body>
+</html>

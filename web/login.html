@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counter sign in - Focus Digital Color Lab</title>
+<link rel="icon" href="/drop/assets/favicon.ico">
+<link rel="stylesheet" href="/drop/assets/app.css">
+<style>
+  main { min-height: 100dvh; display: grid; place-items: center; padding: 16px; }
+  form {
+    width: 100%; max-width: 380px; display: grid; gap: 20px;
+    padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 48px; height: 48px; border-radius: 50%; }
+  h1 { font-size: 1.35rem; }
+  .brand p { font-size: .85rem; color: var(--muted); }
+  .err { color: var(--err); font-weight: 600; font-size: .9rem; }
+  form .btn { width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <form method="post" action="/lab-counter/login">
+    <div class="brand">
+      <img src="/drop/assets/logo-192x192.png" width="48" height="48" alt="">
+      <div>
+        <h1>Print counter</h1>
+        <p>Focus Digital Color Lab</p>
+      </div>
+    </div>
+    <p id="err" class="err" role="alert" hidden>Wrong username or password.</p>
+    <div class="field">
+      <label for="u">Username</label>
+      <input id="u" name="username" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label for="p">Password</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+  </form>
+</main>
+<script>
+  if (new URLSearchParams(location.search).has('e')) document.getElementById('err').hidden = false;
+</script>
+</body>
+</html>
