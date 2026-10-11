@@ -4,3 +4,4 @@ build/
 macos/.build/
 .DS_Store
 .gstack/
+assets-src/
