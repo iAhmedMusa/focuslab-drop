@@ -5,6 +5,8 @@ Customers on the shop Wi-Fi scan a QR code, pick photos in their phone browser, 
 - Customer page: `http://<counter-ip>:6789/drop`
 - Staff counter (live list of uploads, Open folder button): `http://localhost:6789/lab-counter`, default login `admin` / `admin`, reachable only from the counter computer itself.
 
+Full documentation is in [docs/](docs/README.md).
+
 Files are saved as `Prints/<date>/<name>_<phone>_<HHMM>/<file>`. Name and phone are optional; with neither, the folder is `Guest_<HHMM>`.
 
 ## Run
@@ -36,7 +38,7 @@ Options: `-dir ~/Prints` (where photos go), `-port 6789`, `-db <file>` (staff lo
 ## What protects the counter computer
 
 - `/lab-counter` answers only requests from the computer itself (loopback) with a `localhost`, `127.0.0.1` or `focuslab` host name. From any phone it returns 404. Opening it through the computer's own LAN IP also returns 404, by design.
-- The staff login is a second layer. Change the default password before relying on it for anything else.
+- The staff login is a second layer. There is no screen to change the default password yet (see [docs/operations.md](docs/operations.md)).
 - Customers can only write. There is no file listing or download, and file and folder names are sanitized so nothing lands outside `-dir`.
 - Only photos and PDF (`jpg jpeg png heic heif webp tif tiff pdf`) up to 50 MB each and 2 GB per visit. Uploads stop when the disk has under 1 GB free.
 - A customer session lasts 1 hour. This is a soft limit: the 1 hour Wi-Fi limit itself has to come from the router (guest network timeout), and nothing here can disconnect a phone.
