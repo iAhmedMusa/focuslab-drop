@@ -642,7 +642,11 @@ func main() {
 	dir := flag.String("dir", filepath.Join(home, "Prints"), "folder where customer photos are saved")
 	port := flag.Int("port", 6789, "port to listen on")
 	dbFile := flag.String("db", filepath.Join(cfg, "focuslab-drop", "users.db"), "staff login database")
+	exitOnStdinClose := flag.Bool("exit-on-stdin-close", false, "exit when stdin closes (the Mac app sets this so a crashed app never leaves a server behind)")
 	flag.Parse()
+	if *exitOnStdinClose {
+		go func() { io.Copy(io.Discard, os.Stdin); os.Exit(0) }()
+	}
 
 	abs, err := filepath.Abs(*dir)
 	if err != nil {
