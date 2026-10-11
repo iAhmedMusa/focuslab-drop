@@ -51,6 +51,7 @@ The server runs only `open`, `explorer` or `xdg-open` with one path that it has 
 - **File content is not scanned.** Only the extension is checked, not that the file is really an image.
 - **Sessions are in memory.** A restart signs everyone out.
 - **No upload rate limit** beyond the size caps. A customer can fill the disk up to the 1 GB reserve.
+- **Unsigned Windows app.** SmartScreen warns, some antivirus tools may flag it, and Windows 11 Smart App Control can block it outright. See [windows.md](windows.md).
 - **Windows reserved names** such as `NUL.jpg` fail to save. That upload shows an error.
 
 ## Safe use checklist

@@ -1,6 +1,6 @@
 # Windows tray app: plan
 
-Status: plan only. Nothing in this document is built yet. [windows.md](windows.md) still describes the plain program.
+Status: steps 1 to 5 are built and compile for Windows (`GOOS=windows go vet`). Steps 0 and 6 (the spike and the hand test on a real Windows PC) are not done yet. The user guide is [windows.md](windows.md).
 
 ## Goal
 

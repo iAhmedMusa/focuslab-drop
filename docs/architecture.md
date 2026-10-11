@@ -13,10 +13,17 @@
 | `main.go` | Server: routes, uploads, sessions, staff login, live events, startup |
 | `disk_unix.go`, `disk_windows.go` | Free disk space check for macOS and Windows |
 | `main_test.go` | Automated tests |
+| `tray/core/` | Windows tray app logic with no Windows calls (URLs, server flags, address picking, status text, icon drawing) and its tests. Builds and tests on any OS |
+| `tray/*_windows.go` | Windows tray app: menu and icons (`main_windows.go`), the hidden child server (`server_windows.go`), Launch at login in the registry (`autostart_windows.go`), single instance and quit prompt (`single_windows.go`), clipboard and open helpers (`open_windows.go`) |
+| `tray/build.sh` | Builds `dist/FocusLabDrop-windows.zip` |
 | `web/drop.html` | Customer upload page: Bangla by default with an English switch (remembered on the phone), sky-blue theme. Order: intro, name and phone, upload button, hero banner, footer |
 | `web/login.html` | Staff sign in |
 | `web/counter.html` | Staff live list: sticky header with a status light, newest 50 rows with a "Show more" button |
 | `web/assets/` | Shared CSS (sky-blue theme, same as the customer page), logo, favicon, `hero.webp` banner, and the Bangla font in `fonts/` |
+
+## Windows tray app
+
+`FocusLabDrop.exe` does not contain the server. Like the Mac app, it starts `focuslab-drop.exe` from its own folder as a hidden child process with `-exit-on-stdin-close` and keeps the child's stdin pipe open. If the tray app dies, the pipe closes and the server exits, so no server is left behind. The server counts as running only after `http://127.0.0.1:6789/drop` answers 200. Output goes to `%LocalAppData%\FocusLab Drop\server.log`. The tray app uses `fyne.io/systray`, which needs no C compiler on Windows. It has no settings file; Launch at login is one `Run` registry value.
 
 ## Routes
 

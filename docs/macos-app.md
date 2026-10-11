@@ -1,6 +1,6 @@
 # Mac app
 
-FocusLab Drop for Mac wraps the server in a normal app: one round power button to turn it on and off, a status light, a folder picker, a printable QR poster, and an option to start by itself when the Mac starts. Windows will get its own app later.
+FocusLab Drop for Mac wraps the server in a normal app: one round power button to turn it on and off, a status light, a folder picker, a printable QR poster, and an option to start by itself when the Mac starts. Windows has its own tray app, see [windows.md](windows.md).
 
 ## What you get
 
@@ -106,4 +106,4 @@ Run the Swift tests with `cd macos && swift test`, and the server tests with `go
 - Not signed by Apple, so the first-open steps above are needed on every Mac.
 - No automatic updates.
 - Built for Apple Silicon and Intel, but only run-tested on Apple Silicon so far.
-- Windows has no tray app yet. Use the plain program, see [windows.md](windows.md).
+- The Windows tray app is simpler: no folder picker, port setting or QR poster yet. See [windows.md](windows.md).

@@ -47,6 +47,22 @@ They cover:
 1. Copy `focuslab-drop.exe` to the Windows computer and run it. Allow the firewall prompt for private networks.
 2. Repeat the manual test above. Check the status dot, the sticky header and the "Show more" button on the counter page. Check that photos land in `C:\Users\<you>\Prints\<date>\` and that **Open folder** opens Explorer.
 
+## Test the Windows tray app
+
+Run on a Windows 10 or 11 PC. The Mac can only compile it (`GOOS=windows go vet ./tray/...`).
+
+1. Unzip `FocusLabDrop-windows.zip` into one folder and double-click `FocusLabDrop.exe`. There is no black window, and a dot appears (check under the `^` arrow).
+2. The dot turns amber, then green. Open the customer link from a phone on the same Wi-Fi.
+3. Untick **Server on**: the dot turns red and the phone page stops. Tick it again: green.
+4. Click the link item and paste into a browser. **Open counter page**, **Open photos folder** and **Show server log** each open.
+5. Quit the tray app, start the plain `focuslab-drop.exe`, then start the tray app: red dot with `!` and the "port already in use" text.
+6. Start the tray app, then end `FocusLabDrop.exe` in Task Manager: `focuslab-drop.exe` disappears too.
+7. Tick **Launch at login**, sign out and in: the app starts and the dot goes green. Switch it off in **Settings, Apps, Startup**: the tick clears.
+8. Start `FocusLabDrop.exe` twice: only one dot.
+9. **Quit** (confirm): both programs are gone.
+
+Automated: `go test ./tray/core` covers the URLs, server flags, address picking, status text and that every icon is a valid `.ico`.
+
 ## Test the counter page
 
 1. Sign in at `/lab-counter`. The header shows a green dot and "Live".
