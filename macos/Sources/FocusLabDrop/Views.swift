@@ -59,10 +59,9 @@ struct MainWindow: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 8)
-            Toggle("Server", isOn: Binding(get: { server.isOn }, set: { model.setServer(on: $0) }))
-                .toggleStyle(.switch)
-                .tint(Brand.gold)
-                .labelsHidden()
+            Button { model.setServer(on: !server.isOn) } label: { EmptyView() }
+                .buttonStyle(PowerButtonStyle(isOn: server.isOn))
+                .accessibilityLabel(server.isOn ? "Turn server off" : "Turn server on")
                 .disabled(server.state == .starting)
         }
         .padding(16)
@@ -111,7 +110,7 @@ struct MainWindow: View {
             }
             HStack {
                 Button("Print QR poster...") { model.showPoster() }
-                    .buttonStyle(GoldButtonStyle()).disabled(addresses.isEmpty)
+                    .buttonStyle(AccentButtonStyle()).disabled(addresses.isEmpty)
                 Button("Open counter page") { model.openCounter() }.disabled(server.state != .running)
             }
             .padding(.top, 4)
@@ -121,13 +120,13 @@ struct MainWindow: View {
     private var optionsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             Toggle("Launch at login", isOn: Binding(get: { settings.launchAtLogin }, set: { model.setLaunchAtLogin($0) }))
-                .tint(Brand.gold)
+                .tint(Brand.accent)
             if settings.loginStatus == .requiresApproval {
                 Text("Waiting for your OK in System Settings, General, Login Items.")
                     .font(.caption).foregroundStyle(Color.orange)
             }
             Toggle("Start the server when this app opens", isOn: $settings.startServerOnLaunch)
-                .tint(Brand.gold)
+                .tint(Brand.accent)
             DisclosureGroup("Advanced") {
                 HStack {
                     Text("Port")

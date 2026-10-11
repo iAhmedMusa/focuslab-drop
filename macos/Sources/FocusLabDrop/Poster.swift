@@ -45,7 +45,7 @@ struct PosterView: View {
             }
             .padding(18)
             .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Brand.gold, lineWidth: 5))
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Brand.accent, lineWidth: 5))
             .padding(.top, 30)
 
             Text("Not connected yet? Join our Wi-Fi first, then scan again.")
@@ -91,7 +91,7 @@ struct PosterPreview: View {
             HStack {
                 Button("Save as PDF...") { savePDF() }
                 Spacer()
-                Button("Print...") { printPoster() }.buttonStyle(GoldButtonStyle())
+                Button("Print...") { printPoster() }.buttonStyle(AccentButtonStyle())
             }
         }
         .padding(20)

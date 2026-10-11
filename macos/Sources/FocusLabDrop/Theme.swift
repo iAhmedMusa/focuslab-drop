@@ -2,8 +2,10 @@ import AppKit
 import SwiftUI
 
 enum Brand {
-    static let navy = Color(red: 13 / 255, green: 27 / 255, blue: 42 / 255)
-    static let gold = Color(red: 212 / 255, green: 160 / 255, blue: 23 / 255)
+    /// Sky blue, the same accent as the web pages (dark theme values).
+    static let accent = Color(red: 124 / 255, green: 195 / 255, blue: 236 / 255)
+    static let accentInk = Color(red: 7 / 255, green: 32 / 255, blue: 58 / 255)
+    static let on = Color(red: 0.18, green: 0.80, blue: 0.44)
     static let radius: CGFloat = 12
 
     static var logo: NSImage? {
@@ -65,17 +67,34 @@ enum StatusImage {
     }
 }
 
-struct GoldButtonStyle: ButtonStyle {
+struct AccentButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var enabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(Brand.navy)
+            .foregroundStyle(Brand.accentInk)
             .padding(.horizontal, 16)
             .frame(minHeight: 34)
-            .background(RoundedRectangle(cornerRadius: Brand.radius).fill(Brand.gold))
+            .background(RoundedRectangle(cornerRadius: Brand.radius).fill(Brand.accent))
             .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.4)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
+    }
+}
+
+/// Round power button: green when the server is on, gray when off.
+struct PowerButtonStyle: ButtonStyle {
+    let isOn: Bool
+    @Environment(\.isEnabled) private var enabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        Image(systemName: "power")
+            .font(.system(size: 19, weight: .bold))
+            .foregroundStyle(isOn ? Color.white : Color.secondary)
+            .frame(width: 46, height: 46)
+            .background(Circle().fill(isOn ? Brand.on : Color(nsColor: .quaternaryLabelColor)))
+            .shadow(color: isOn ? Brand.on.opacity(0.55) : .clear, radius: 8)
+            .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.4)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
     }
 }
