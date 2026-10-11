@@ -26,6 +26,7 @@ Everything stays on the shop network. Nothing is sent over the internet.
 - **Fixed QR codes.** One QR for the guest Wi-Fi and one for the upload page. Both are printed once and managed by hand. The app does not generate or change them.
 - **QR points at the IP address.** Phones do not read the counter computer's hosts file, so a name like `focuslab` would not work from a phone. See [setup.md](setup.md).
 - **Name and phone are optional.** With neither, the folder is named `Guest_<time>`.
+- **Bangla first.** The customer page opens in Bangla (font: Kalpurush) with a one-tap switch to English. Bangla names, Bangla digits in phone numbers and Bangla file names are kept as typed.
 - **Staff login in SQLite.** A small database holds the staff user. Default login is `admin` / `admin`.
 - **Customers can only upload.** No listing, no download, no access to other customers' photos.
 - **1 hour limit is soft.** The upload session expires after 1 hour. A real 1 hour Wi-Fi limit has to come from the router's guest network settings.

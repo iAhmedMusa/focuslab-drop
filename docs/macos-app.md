@@ -1,6 +1,6 @@
 # Mac app
 
-FocusLab Drop for Mac wraps the server in a normal app: one switch to turn it on and off, a status light, a folder picker, a printable QR poster, and an option to start by itself when the Mac starts. Windows will get its own app later.
+FocusLab Drop for Mac wraps the server in a normal app: one round power button to turn it on and off, a status light, a folder picker, a printable QR poster, and an option to start by itself when the Mac starts. Windows will get its own app later.
 
 ## What you get
 
@@ -10,7 +10,7 @@ FocusLab Drop for Mac wraps the server in a normal app: one switch to turn it on
   - red: server off
   - red with `!`: a problem (the window says what)
 - **Small window** (open it from the menu or by opening the app again):
-  - the big light and the on/off switch
+  - the big light and the round power button (green when on, gray when off)
   - **Save photos to**: choose the folder, or show it in Finder
   - **Customer link**: the address customers use, with a Copy button. If the Mac has more than one network address, pick the Wi-Fi one.
   - **Print QR poster**: an A4 page with the upload QR code, ready to print or save as PDF
@@ -19,7 +19,7 @@ FocusLab Drop for Mac wraps the server in a normal app: one switch to turn it on
   - **Advanced**: the port (default 6789)
 - **Menu** with the same actions, plus Quit.
 
-The app has no Dock icon. Closing the window does not stop the server. Quit from the menu to stop it, or turn the switch off.
+The app has no Dock icon. Closing the window does not stop the server. Quit from the menu to stop it, or press the power button to turn it off.
 
 ## Install
 
@@ -97,13 +97,13 @@ Run the Swift tests with `cd macos && swift test`, and the server tests with `go
 ## How it fits together
 
 - The app (Swift, in `macos/`) contains the same Go server as the command-line version, inside the app bundle.
-- Turning the switch on starts the server as a background process with the chosen folder and port, and waits until it really answers before showing green.
+- Pressing the power button when the server is off starts the server as a background process with the chosen folder and port, and waits until it really answers before showing green.
 - The server is started with `-exit-on-stdin-close`. If the app crashes or is force-quit, the server notices and stops by itself, so it never keeps the port busy.
-- Quitting the app, or turning the switch off, stops the server.
+- Quitting the app, or pressing the power button when it is on, stops the server.
 
 ## Known limits
 
 - Not signed by Apple, so the first-open steps above are needed on every Mac.
 - No automatic updates.
 - Built for Apple Silicon and Intel, but only run-tested on Apple Silicon so far.
-- Windows is not covered yet. It will reuse the same server with its own small tray app.
+- Windows has no tray app yet. Use the plain program, see [windows.md](windows.md).

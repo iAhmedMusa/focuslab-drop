@@ -45,7 +45,14 @@ They cover:
 ## Test on Windows
 
 1. Copy `focuslab-drop.exe` to the Windows computer and run it. Allow the firewall prompt for private networks.
-2. Repeat the manual test above. Check that photos land in `C:\Users\<you>\Prints\<date>\` and that **Open folder** opens Explorer.
+2. Repeat the manual test above. Check the status dot, the sticky header and the "Show more" button on the counter page. Check that photos land in `C:\Users\<you>\Prints\<date>\` and that **Open folder** opens Explorer.
+
+## Test the counter page
+
+1. Sign in at `/lab-counter`. The header shows a green dot and "Live".
+2. Stop the server for a few seconds. The dot and text turn red and say "Reconnecting". Start it again and it returns to green "Live".
+3. With more than 50 customer folders for today, the list shows the newest 50 and a "Show more (N older)" button. Scroll down: the header stays at the top.
+4. Check light and dark mode on the Mac. Both pages use the sky-blue theme.
 
 ## Edge cases to try
 

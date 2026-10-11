@@ -13,10 +13,10 @@
 | `main.go` | Server: routes, uploads, sessions, staff login, live events, startup |
 | `disk_unix.go`, `disk_windows.go` | Free disk space check for macOS and Windows |
 | `main_test.go` | Automated tests |
-| `web/drop.html` | Customer upload page |
+| `web/drop.html` | Customer upload page: Bangla by default with an English switch (remembered on the phone), sky-blue theme. Order: intro, name and phone, upload button, hero banner, footer |
 | `web/login.html` | Staff sign in |
-| `web/counter.html` | Staff live list |
-| `web/assets/` | Shared CSS, logo, favicon, shop photo |
+| `web/counter.html` | Staff live list: sticky header with a status light, newest 50 rows with a "Show more" button |
+| `web/assets/` | Shared CSS (sky-blue theme, same as the customer page), logo, favicon, `hero.webp` banner, and the Bangla font in `fonts/` |
 
 ## Routes
 
