@@ -118,7 +118,7 @@ func safeName(s string) string {
 	var b strings.Builder
 	for _, r := range strings.TrimSpace(s) {
 		switch {
-		case unicode.IsLetter(r) || unicode.IsDigit(r) || r == '-':
+		case unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '-': // marks: Bangla vowel signs are not letters
 			b.WriteRune(r)
 		case unicode.IsSpace(r) || r == '_':
 			b.WriteByte('_')
@@ -130,6 +130,9 @@ func safeName(s string) string {
 func safePhone(s string) string {
 	var b strings.Builder
 	for _, r := range s {
+		if r >= '০' && r <= '৯' { // Bangla digits, typed on a Bangla keyboard
+			r = '0' + (r - '০')
+		}
 		if (r >= '0' && r <= '9') || r == '+' {
 			b.WriteRune(r)
 		}
@@ -142,7 +145,7 @@ func safeFile(name string) string {
 	name = path.Base(strings.ReplaceAll(name, `\`, "/"))
 	var b strings.Builder
 	for _, r := range name {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || strings.ContainsRune(" .-_()", r) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || strings.ContainsRune(" .-_()", r) {
 			b.WriteRune(r)
 		} else {
 			b.WriteByte('_')

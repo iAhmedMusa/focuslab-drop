@@ -81,7 +81,10 @@ func TestSanitizers(t *testing.T) {
 		{safeName("../../etc"), "etc"},
 		{safeName(`..\..\x`), "x"},
 		{safeName(""), ""},
+		{safeName("আয়েশা খান"), "আয়েশা_খান"}, // Bangla vowel signs must survive
+		{safeFile("ছবি১ (২).jpg"), "ছবি১ (২).jpg"},
 		{safePhone("+92 300-123 4567abc"), "+923001234567"},
+		{safePhone("০১৭১১-২২৩৩৪৪"), "01711223344"},
 		{safeFile("../../etc/passwd.jpg"), "passwd.jpg"},
 		{safeFile(`..\..\evil.png`), "evil.png"},
 		{safeFile(".hidden.jpg"), "hidden.jpg"},
@@ -237,5 +240,25 @@ func TestNoFolderListingOrDownload(t *testing.T) {
 		if strings.Contains(w.Body.String(), "private") || w.Code == 200 {
 			t.Errorf("%s leaked: %d", p, w.Code)
 		}
+	}
+}
+
+func TestPageAssetsAreServed(t *testing.T) {
+	h := testServer(t).routes()
+	for path, want := range map[string]string{
+		"/drop/assets/hero.webp":           "image/webp",
+		"/drop/assets/fonts/Kalpurush.ttf": "font/ttf",
+		"/drop/assets/logo-192x192.png":    "image/png",
+	} {
+		w := do(h, "GET", path, "192.168.1.9:5000", nil)
+		if w.Code != 200 || w.Body.Len() == 0 {
+			t.Errorf("%s: %d, %d bytes", path, w.Code, w.Body.Len())
+		}
+		if ct := w.Header().Get("Content-Type"); !strings.HasPrefix(ct, want) {
+			t.Errorf("%s: content type %q, want %q", path, ct, want)
+		}
+	}
+	if w := do(h, "GET", "/drop/assets/shelf.jpg", "192.168.1.9:5000", nil); w.Code != 404 {
+		t.Errorf("removed shelf.jpg should be gone: %d", w.Code)
 	}
 }
