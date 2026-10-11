@@ -1,6 +1,6 @@
 # FocusLab Drop on Windows
 
-Windows runs the same server as the Mac, as one program with no installer. There is no tray app yet, so you start it by hand and keep its window open.
+Windows runs the same server as the Mac, as one program with no installer. There is no tray app yet (one is planned, see [windows-tray-plan.md](windows-tray-plan.md)), so you start it by hand and keep its window open.
 
 ## Get the program
 
