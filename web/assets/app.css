@@ -1,19 +1,19 @@
 /* Shared tokens and components for the customer page and the staff counter.
-   One theme per visitor: follows the device (light or dark). Brand: navy + gold. */
+   One theme per visitor: follows the device (light or dark). Palette matches the customer drop page (sky blue). */
 :root {
-  --navy: #0D1B2A;
-  --gold: #D4A017;
-  --gold-hi: #E8B930;
-  --bg: #F3F5F8;
-  --surface: #FAFBFD;
-  --text: #0D1B2A;
-  --muted: #475569;
-  --line: #D5DCE6;
-  --field: #74839A;
-  --focus: #0D1B2A;
-  --bar: #0D1B2A;
-  --err: #B42318;
-  --ok: #157347;
+  --bg: #f2f8fc;
+  --surface: #fbfdff;
+  --text: #0d2236;
+  --muted: #46607a;
+  --line: #d6e6f2;
+  --field: #7595b3;
+  --focus: #1d6fa6;
+  --bar: #4ba7db;
+  --btn: #bfe1f6;
+  --btn-hi: #a6d5f1;
+  --btn-ink: #0b2a40;
+  --err: #b42318;
+  --ok: #17744f;
   --r: 14px;
   --r-sm: 8px;
   --font: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -21,16 +21,19 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0D1B2A;
-    --surface: #14263B;
-    --text: #EEF2F7;
-    --muted: #A9B6C6;
-    --line: #263A52;
-    --field: #6F87A6;
-    --focus: #E8B930;
-    --bar: #E8B930;
-    --err: #FF8A80;
-    --ok: #6FD3A0;
+    --bg: #0b1b2b;
+    --surface: #11273b;
+    --text: #eaf3fa;
+    --muted: #a9bccd;
+    --line: #223d56;
+    --field: #6e93b3;
+    --focus: #9ad3f5;
+    --bar: #7cc3ec;
+    --btn: #7cc3ec;
+    --btn-hi: #98d0f2;
+    --btn-ink: #07203a;
+    --err: #ff9c94;
+    --ok: #6fd3a0;
   }
 }
 
@@ -68,8 +71,8 @@ p { margin: 0; }
 }
 .btn:active { transform: scale(0.98); }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.btn-primary { background: var(--gold); color: var(--navy); }
-.btn-primary:hover:not(:disabled) { background: var(--gold-hi); }
+.btn-primary { background: var(--btn); color: var(--btn-ink); }
+.btn-primary:hover:not(:disabled) { background: var(--btn-hi); }
 .btn-ghost { background: transparent; color: var(--text); border: 1.5px solid var(--field); }
 .btn-ghost:hover:not(:disabled) { border-color: var(--text); }
 .btn-small { min-height: 44px; padding: 0 16px; font-size: .9rem; }

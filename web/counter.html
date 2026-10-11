@@ -19,12 +19,17 @@
     border-left: 4px solid var(--line); border-radius: var(--r);
     transition: border-color .3s;
   }
-  .item.fresh { border-left-color: var(--gold); }
+  .item.fresh { border-left-color: var(--bar); }
   .who { font-weight: 700; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; }
   .what { font-size: .88rem; color: var(--muted); }
   .empty { padding: 28px 16px; text-align: center; color: var(--muted); border: 1.5px dashed var(--line); border-radius: var(--r); }
   .conn { font-size: .85rem; color: var(--muted); }
+  .conn::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ok); }
+  .top { position: sticky; top: 0; z-index: 5; background: var(--bg); }
+  .more { display: block; margin: 16px auto 0; }
+  .conn:empty::before { display: none; }
   .conn.bad { color: var(--err); font-weight: 600; }
+  .conn.bad::before { background: var(--err); }
 </style>
 </head>
 <body>
@@ -44,6 +49,7 @@
 
   <h2>Today</h2>
   <ul id="list" class="list"></ul>
+  <button id="more" class="btn btn-ghost btn-small more" type="button" hidden></button>
   <p id="empty" class="empty" hidden>No photos yet today. New uploads appear here as customers send them.</p>
 </main>
 
@@ -53,6 +59,8 @@
   const fmt = (n) => n < 1048576 ? Math.max(1, Math.round(n / 1024)) + ' KB' : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB';
   const hhmm = (d) => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const PAGE = 50;
+  let shown = PAGE;
   const rows = new Map(); // folder -> {files, bytes, at, li}
   let audio = null, soundOn = false, lastBeep = 0;
   try { soundOn = localStorage.getItem('fl_sound') === '1'; } catch (_) {}
@@ -86,7 +94,10 @@
 
   function render() {
     const sorted = [...rows.entries()].sort((a, b) => new Date(b[1].at) - new Date(a[1].at));
-    $('list').replaceChildren(...sorted.map(([f, r]) => r.li));
+    $('list').replaceChildren(...sorted.slice(0, shown).map(([f, r]) => r.li));
+    const left = sorted.length - shown;
+    $('more').hidden = left <= 0;
+    $('more').textContent = 'Show more (' + left + ' older)';
     $('empty').hidden = rows.size > 0;
   }
 
@@ -133,6 +144,8 @@
       beep();
     };
   }
+
+  $('more').onclick = () => { shown += PAGE; render(); };
 
   function paintSound() {
     $('sound').textContent = soundOn ? 'Sound on' : 'Sound off';
