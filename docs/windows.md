@@ -2,7 +2,7 @@
 
 Windows has a small tray app. It sits by the clock, shows a coloured dot, and runs the server in the background with no black window. The plain program is still available, see the end of this page.
 
-> **Status:** the tray app is built and compiles for Windows, but it has not been tried on a real Windows PC yet. Follow the hand test in [testing.md](testing.md) before relying on it in the shop.
+> **Status:** the tray app is built and compiles for Windows, but it has not been tried on a real Windows PC yet. Follow the hand test in [windows-test.md](windows-test.md) before relying on it in the shop.
 
 ## What you get
 

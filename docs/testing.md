@@ -49,7 +49,7 @@ They cover:
 
 ## Test the Windows tray app
 
-Run on a Windows 10 or 11 PC. The Mac can only compile it (`GOOS=windows go vet ./tray/...`).
+Run on a Windows 10 or 11 PC. The Mac can only compile it (`GOOS=windows go vet ./tray/...`). The full step-by-step test, with a result table, is in [windows-test.md](windows-test.md). This is the short version:
 
 1. Unzip `FocusLabDrop-windows.zip` into one folder and double-click `FocusLabDrop.exe`. There is no black window, and a dot appears (check under the `^` arrow).
 2. The dot turns amber, then green. Open the customer link from a phone on the same Wi-Fi.
