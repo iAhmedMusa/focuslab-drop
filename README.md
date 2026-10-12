@@ -11,7 +11,7 @@ Files are saved as `Prints/<date>/<name>_<phone>_<HHMM>/<file>`. Name and phone 
 
 ## Mac app
 
-`./macos/build.sh` builds `dist/FocusLabDrop.dmg`: a menu-bar app with a round power button, status light, folder picker, printable QR poster and launch at login. See [docs/macos-app.md](docs/macos-app.md). On Windows, see [docs/windows.md](docs/windows.md).
+`./macos/build.sh` builds `dist/FocusLabDrop.dmg`: a menu-bar app with a round power button, status light, folder picker, printable QR poster and launch at login. See [docs/macos-app.md](docs/macos-app.md). `./tray/build.sh` builds `dist/FocusLabDrop-windows.zip`: a tray app with a status dot, power toggle, customer link, open counter, folder and log, and launch at login (built, not yet tested on a real Windows PC). See [docs/windows.md](docs/windows.md).
 
 ## Run (command line)
 

@@ -6,8 +6,9 @@ FocusLab Drop lets print-shop customers send photos from their phone to the coun
 |---|---|
 | [overview.md](overview.md) | Understand what the app does and the decisions behind it |
 | [macos-app.md](macos-app.md) | Install and use the Mac app (power button, folder, QR poster, auto start) |
-| [windows.md](windows.md) | Install and use it on a Windows counter computer |
-| [windows-tray-plan.md](windows-tray-plan.md) | See the plan, limits and risks for the future Windows tray app |
+| [windows.md](windows.md) | Install and use the Windows tray app (or the plain program) |
+| [windows-tray-plan.md](windows-tray-plan.md) | See the plan, limits and risks behind the Windows tray app |
+| [windows-test.md](windows-test.md) | Run the full hand test of the Windows tray app on a real PC |
 | [setup.md](setup.md) | Set up the counter computer, router and QR codes |
 | [operations.md](operations.md) | Run it day to day and fix common problems |
 | [architecture.md](architecture.md) | See how the code, routes and folders fit together |
