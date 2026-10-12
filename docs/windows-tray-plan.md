@@ -1,6 +1,6 @@
 # Windows tray app: plan
 
-Status: steps 1 to 5 are built and compile for Windows (`GOOS=windows go vet`). Steps 0 and 6 (the spike and the hand test on a real Windows PC) are not done yet. The user guide is [windows.md](windows.md).
+Status: steps 0 to 7 are done. The app passed the hand test on a real Windows 11 PC. Step 8 is the v0.3.0 release. The user guide is [windows.md](windows.md).
 
 ## Goal
 
