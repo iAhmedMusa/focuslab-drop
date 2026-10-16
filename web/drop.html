@@ -570,20 +570,16 @@
 
       .review {
         display: grid;
-        justify-items: start;
+        justify-items: center;
+        text-align: center;
         gap: 8px;
-        padding: 16px;
-        border: 1.5px solid var(--line);
-        border-radius: var(--r);
         color: var(--text);
         text-decoration: none;
-      }
-      .review:hover {
-        border-color: var(--bar);
       }
       .review strong {
         font-size: 1.05rem;
         line-height: 1.5rem;
+        text-wrap: balance;
       }
       .stars {
         display: flex;
@@ -821,6 +817,16 @@
     </main>
 
     <footer>
+      <a
+        class="review"
+        href="https://g.page/r/CeQwDhZHiq-DEBM/review"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="stars" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg></span>
+        <strong data-i18n="reviewTitle"></strong>
+        <span class="review-cta"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg><span data-i18n="review"></span></span>
+      </a>
       <nav class="links">
         <a
           href="https://focusdigitalcolorlab.com"
@@ -837,16 +843,6 @@
           ><span data-i18n="facebookName"></span
         ></a>
       </nav>
-      <a
-        class="review"
-        href="https://g.page/r/CeQwDhZHiq-DEBM/review"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="stars" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBBC04" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg></span>
-        <strong data-i18n="reviewTitle"></strong>
-        <span class="review-cta"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg><span data-i18n="review"></span></span>
-      </a>
       <ul class="services" data-i18n-list="services"></ul>
     </footer>
 
@@ -896,7 +892,7 @@
               "আমাদের টিম এগুলো প্রিন্ট করবে। এখন এই পেজ বন্ধ করতে পারেন।",
             more: "আরও ছবি পাঠান",
             review: "গুগলে রিভিউ দিন",
-            reviewTitle: "ছবি পছন্দ হয়েছে? অন্যদের জানান",
+            reviewTitle: "আপনার সন্তুষ্টিই আমাদের সাফল্য—একটি রিভিউ দিয়ে পাশে থাকুন",
             services: ["পাসপোর্ট ছবি", "ভিসা ছবি", "ছবি রিপ্রিন্ট", "ফটো অ্যালবাম", "ফটো ফ্রেম", "মগ প্রিন্ট"],
             e401: "আপনার ১ ঘণ্টার সেশন শেষ। পেজটি রিলোড করে আবার শুরু করুন।",
             e413: "ফাইলটি ৫০ MB-এর চেয়ে বড়।",
@@ -943,7 +939,7 @@
             doneLede: "Our team will print them. You can close this page.",
             more: "Send more",
             review: "Review us on Google",
-            reviewTitle: "Happy with your photos? Tell others about us",
+            reviewTitle: "Your satisfaction, our success—leave us a review",
             services: ["Passport Photo", "Visa Photo", "Photo Reprint", "Photo Album", "Photo Frame", "Mug Print"],
             e401: "Your 1 hour session ended. Reload this page to start again.",
             e413: "This file is larger than 50 MB.",
