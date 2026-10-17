@@ -7,29 +7,65 @@
 <link rel="icon" href="/drop/assets/favicon.ico">
 <link rel="stylesheet" href="/drop/assets/app.css">
 <style>
-  .top, .wrap { max-width: 880px; }
-  .info { display: grid; gap: 4px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); font-size: .9rem; }
-  .info b { font-weight: 600; }
-  .info code { font: 500 .9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
-  h2 { font-size: 1.25rem; margin: 28px 0 12px; }
-  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .item {
-    display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center;
-    padding: 14px 16px; background: var(--surface); border: 1px solid var(--line);
-    border-left: 4px solid var(--line); border-radius: var(--r);
-    transition: border-color .3s;
+  .top, .wrap { max-width: 760px; }
+  .top { position: sticky; top: 0; z-index: 5; max-width: none; padding: 0 max(16px, calc((100% - 760px) / 2 + 16px)); background: var(--surface); border-bottom: 1px solid var(--line); }
+  .ic { width: 22px; height: 22px; flex: none; }
+  .icon-btn {
+    display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0;
+    border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer;
+    transition: background-color .15s, color .15s, transform .12s ease-out;
   }
-  .item.fresh { border-left-color: var(--bar); }
-  .who { font-weight: 700; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; }
-  .what { font-size: .88rem; color: var(--muted); }
-  .empty { padding: 28px 16px; text-align: center; color: var(--muted); border: 1.5px dashed var(--line); border-radius: var(--r); }
-  .conn { font-size: .85rem; color: var(--muted); }
+  .icon-btn:hover { background: var(--line); color: var(--text); }
+  .icon-btn:active { transform: scale(0.96); }
+  .icon-btn.on { background: var(--btn); color: var(--btn-ink); }
+  .icon-btn.on:hover { background: var(--btn-hi); }
+  .conn { font-size: .85rem; color: var(--muted); margin-right: 4px; }
   .conn::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ok); }
-  .top { position: sticky; top: 0; z-index: 5; background: var(--bg); }
-  .more { display: block; margin: 16px auto 0; }
   .conn:empty::before { display: none; }
   .conn.bad { color: var(--err); font-weight: 600; }
   .conn.bad::before { background: var(--err); }
+
+  .link { display: grid; gap: 6px; padding: 16px 0 0; font-size: .9rem; color: var(--muted); }
+  .chip { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+  .chip code { flex: 1; min-width: 0; font: 500 .9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); word-break: break-all; user-select: all; }
+  .chip .btn { min-height: 36px; padding: 0 12px; flex: none; }
+
+  .panel { margin-top: 20px; padding: 4px 16px 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 0 8px; }
+  h2 { font-size: 1.5rem; }
+  .head span { font-size: .9rem; color: var(--muted); }
+
+  .list { list-style: none; margin: 0; padding: 0; }
+  .item {
+    display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center;
+    padding: 14px 8px; margin: 0 -8px; border-bottom: 1px solid var(--line); border-radius: var(--r-sm);
+    transition: background-color 1.2s ease-out;
+  }
+  .item:last-child { border-bottom-color: transparent; }
+  .item.fresh { background: color-mix(in srgb, var(--bar) 16%, transparent); transition: none; }
+  .meta { min-width: 0; }
+  .who { font-weight: 700; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .what { font-size: .88rem; color: var(--muted); }
+  .more { display: block; margin: 16px auto 0; }
+  .empty { padding: 32px 16px; text-align: center; color: var(--muted); }
+
+  dialog {
+    width: min(480px, calc(100% - 32px)); padding: 24px; border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--surface); color: var(--text);
+  }
+  dialog::backdrop { background: rgb(5 15 25 / .55); }
+  .dlg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .dlg-head h2 { font-size: 1.25rem; }
+  .sec { display: grid; gap: 10px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .sec:first-of-type { border-top: 0; }
+  .sec h3 { margin: 0; font-size: .95rem; }
+  .sec input {
+    min-height: 48px; padding: 0 14px; font: inherit; color: var(--text); background: var(--bg);
+    border: 1.5px solid var(--field); border-radius: var(--r);
+  }
+  .sec input:disabled { opacity: .7; cursor: not-allowed; border-color: var(--line); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .btn-primary { background: var(--btn); color: var(--btn-ink); border: 0; }
 </style>
 </head>
 <body>
@@ -38,26 +74,46 @@
   <b>Print counter</b>
   <span class="grow"></span>
   <span id="conn" class="conn" aria-live="polite"></span>
-  <button id="sound" class="btn btn-ghost btn-small" type="button" aria-pressed="false">Sound off</button>
+  <button id="sound" class="icon-btn" type="button" aria-pressed="false" title="Sound off" aria-label="Sound off">
+    <span id="sndOn" hidden><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M157.27,21.22a12,12,0,0,0-12.64,1.31L75.88,76H32A20,20,0,0,0,12,96v64a20,20,0,0,0,20,20H75.88l68.75,53.47A12,12,0,0,0,164,224V32A12,12,0,0,0,157.27,21.22ZM36,100H68v56H36Zm104,99.46L92,162.13V93.87l48-37.33ZM212,128a44,44,0,0,1-11,29.11,12,12,0,1,1-18-15.88,20,20,0,0,0,0-26.43,12,12,0,0,1,18-15.86A43.94,43.94,0,0,1,212,128Zm40,0a83.87,83.87,0,0,1-21.39,56,12,12,0,0,1-17.89-16,60,60,0,0,0,0-80,12,12,0,1,1,17.88-16A83.87,83.87,0,0,1,252,128Z"/></svg></span><span id="sndOff"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M56.88,31.93A12,12,0,1,0,39.12,48.07L64.51,76H32A20,20,0,0,0,12,96v64a20,20,0,0,0,20,20H75.88l68.75,53.47A12,12,0,0,0,164,224V185.44l35.12,38.63a12,12,0,0,0,17.76-16.14ZM36,100H68v56H36Zm104,99.46L92,162.13V106.24L140,159Zm-31-134a12,12,0,0,1,2.11-16.84l33.51-26.07A12,12,0,0,1,164,32V94.94a12,12,0,0,1-24,0V56.54l-14.15,11A12,12,0,0,1,109,65.44Zm74,49.35a12,12,0,0,1,18-15.85,44,44,0,0,1,5.55,50.21,12,12,0,0,1-21-11.55A19.67,19.67,0,0,0,188,128,20,20,0,0,0,183,114.79ZM252,128a84.18,84.18,0,0,1-19.11,53.35,12,12,0,1,1-18.53-15.25A60,60,0,0,0,212.73,88a12,12,0,1,1,17.88-16A83.87,83.87,0,0,1,252,128Z"/></svg></span>
+  </button>
+  <button id="settingsBtn" class="icon-btn" type="button" title="Settings" aria-label="Settings"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M128,76a52,52,0,1,0,52,52A52.06,52.06,0,0,0,128,76Zm0,80a28,28,0,1,1,28-28A28,28,0,0,1,128,156Zm92-27.21v-1.58l14-17.51a12,12,0,0,0,2.23-10.59A111.75,111.75,0,0,0,225,71.89,12,12,0,0,0,215.89,66L193.61,63.5l-1.11-1.11L190,40.1A12,12,0,0,0,184.11,31a111.67,111.67,0,0,0-27.23-11.27A12,12,0,0,0,146.3,22L128.79,36h-1.58L109.7,22a12,12,0,0,0-10.59-2.23A111.75,111.75,0,0,0,71.89,31.05,12,12,0,0,0,66,40.11L63.5,62.39,62.39,63.5,40.1,66A12,12,0,0,0,31,71.89,111.67,111.67,0,0,0,19.77,99.12,12,12,0,0,0,22,109.7l14,17.51v1.58L22,146.3a12,12,0,0,0-2.23,10.59,111.75,111.75,0,0,0,11.29,27.22A12,12,0,0,0,40.11,190l22.28,2.48,1.11,1.11L66,215.9A12,12,0,0,0,71.89,225a111.67,111.67,0,0,0,27.23,11.27A12,12,0,0,0,109.7,234l17.51-14h1.58l17.51,14a12,12,0,0,0,10.59,2.23A111.75,111.75,0,0,0,184.11,225a12,12,0,0,0,5.91-9.06l2.48-22.28,1.11-1.11L215.9,190a12,12,0,0,0,9.06-5.91,111.67,111.67,0,0,0,11.27-27.23A12,12,0,0,0,234,146.3Zm-24.12-4.89a70.1,70.1,0,0,1,0,8.2,12,12,0,0,0,2.61,8.22l12.84,16.05A86.47,86.47,0,0,1,207,166.86l-20.43,2.27a12,12,0,0,0-7.65,4,69,69,0,0,1-5.8,5.8,12,12,0,0,0-4,7.65L166.86,207a86.47,86.47,0,0,1-10.49,4.35l-16.05-12.85a12,12,0,0,0-7.5-2.62c-.24,0-.48,0-.72,0a70.1,70.1,0,0,1-8.2,0,12.06,12.06,0,0,0-8.22,2.6L99.63,211.33A86.47,86.47,0,0,1,89.14,207l-2.27-20.43a12,12,0,0,0-4-7.65,69,69,0,0,1-5.8-5.8,12,12,0,0,0-7.65-4L49,166.86a86.47,86.47,0,0,1-4.35-10.49l12.84-16.05a12,12,0,0,0,2.61-8.22,70.1,70.1,0,0,1,0-8.2,12,12,0,0,0-2.61-8.22L44.67,99.63A86.47,86.47,0,0,1,49,89.14l20.43-2.27a12,12,0,0,0,7.65-4,69,69,0,0,1,5.8-5.8,12,12,0,0,0,4-7.65L89.14,49a86.47,86.47,0,0,1,10.49-4.35l16.05,12.85a12.06,12.06,0,0,0,8.22,2.6,70.1,70.1,0,0,1,8.2,0,12,12,0,0,0,8.22-2.6l16.05-12.85A86.47,86.47,0,0,1,166.86,49l2.27,20.43a12,12,0,0,0,4,7.65,69,69,0,0,1,5.8,5.8,12,12,0,0,0,7.65,4L207,89.14a86.47,86.47,0,0,1,4.35,10.49l-12.84,16.05A12,12,0,0,0,195.88,123.9Z"/></svg></button>
 </header>
 
 <main class="wrap">
-  <div class="info">
-    <span><b>Saving to</b> <code id="dir"></code></span>
-    <span><b>Customer link</b> <code id="urls"></code></span>
+  <div class="link"><span>Customer link</span><div id="urls"></div></div>
+
+  <section class="panel">
+    <div class="head"><h2>Today</h2><span id="count"></span></div>
+    <ul id="list" class="list"></ul>
+    <button id="more" class="btn btn-ghost btn-small more" type="button" hidden></button>
+    <p id="empty" class="empty" hidden>No photos yet today. New uploads appear here as customers send them.</p>
+  </section>
+</main>
+
+<dialog id="settings" aria-labelledby="settingsTitle">
+  <div class="dlg-head">
+    <h2 id="settingsTitle">Settings</h2>
+    <button id="settingsClose" class="icon-btn" type="button" aria-label="Close"><svg class="ic" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"/></svg></button>
   </div>
 
-  <form id="reviewForm" class="info" style="margin-top:12px">
-    <label for="review"><b>Google review link</b> (shown to customers after they send photos; leave empty to hide)</label>
-    <input id="review" type="url" maxlength="500" placeholder="https://g.page/r/.../review" style="min-height:44px;padding:0 12px;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:var(--r)">
-    <span><button class="btn btn-ghost btn-small" type="submit">Save link</button> <span id="reviewMsg" class="conn" aria-live="polite"></span></span>
+  <form id="reviewForm" class="sec">
+    <h3><label for="review">Google review link</label></h3>
+    <span class="hint">Shown to customers after they send photos. Leave empty to hide it.</span>
+    <input id="review" type="url" maxlength="500" placeholder="https://g.page/r/.../review" disabled>
+    <div class="row">
+      <button id="reviewEdit" class="btn btn-ghost btn-small" type="button">Edit</button>
+      <button id="reviewSave" class="btn btn-primary btn-small" type="submit" hidden>Save</button>
+      <button id="reviewCancel" class="btn btn-ghost btn-small" type="button" hidden>Cancel</button>
+      <span id="reviewMsg" class="conn" aria-live="polite"></span>
+    </div>
   </form>
 
-  <h2>Today</h2>
-  <ul id="list" class="list"></ul>
-  <button id="more" class="btn btn-ghost btn-small more" type="button" hidden></button>
-  <p id="empty" class="empty" hidden>No photos yet today. New uploads appear here as customers send them.</p>
-</main>
+  <div class="sec">
+    <h3>Saving to</h3>
+    <code id="dir" class="hint" style="word-break:break-all"></code>
+  </div>
+</dialog>
 
 <script>
 (() => {
@@ -68,7 +124,7 @@
   const PAGE = 50;
   let shown = PAGE;
   const rows = new Map(); // folder -> {files, bytes, at, li}
-  let audio = null, soundOn = false, lastBeep = 0;
+  let audio = null, soundOn = false, lastBeep = 0, savedReview = '';
   try { soundOn = localStorage.getItem('fl_sound') === '1'; } catch (_) {}
 
   function label(folder) {
@@ -84,10 +140,10 @@
     if (!r.li) {
       r.li = document.createElement('li');
       r.li.className = 'item';
-      r.li.innerHTML = '<div><div class="who"></div><div class="what"></div></div>';
+      r.li.innerHTML = '<div class="meta"><div class="who"></div><div class="what"></div></div>';
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'btn btn-primary btn-small';
+      b.className = 'btn btn-ghost btn-small';
       b.textContent = 'Open folder';
       b.onclick = () => fetch('/lab-counter/open', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder }) });
       r.li.append(b);
@@ -105,6 +161,28 @@
     $('more').hidden = left <= 0;
     $('more').textContent = 'Show more (' + left + ' older)';
     $('empty').hidden = rows.size > 0;
+    $('count').textContent = rows.size ? rows.size + (rows.size === 1 ? ' customer' : ' customers') : '';
+  }
+
+  function renderUrls(urls) {
+    if (!urls.length) { $('urls').textContent = 'Not connected to a network'; return; }
+    $('urls').replaceChildren(...urls.map((u) => {
+      const row = document.createElement('div');
+      row.className = 'chip';
+      const code = document.createElement('code');
+      code.textContent = u;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-ghost btn-small';
+      b.textContent = 'Copy';
+      b.onclick = async () => {
+        try { await navigator.clipboard.writeText(u); b.textContent = 'Copied'; }
+        catch (_) { getSelection().selectAllChildren(code); b.textContent = 'Press Ctrl+C'; }
+        setTimeout(() => { b.textContent = 'Copy'; }, 1500);
+      };
+      row.append(code, b);
+      return row;
+    }));
   }
 
   async function load() {
@@ -112,8 +190,9 @@
     if (res.status === 401) { location.href = '/lab-counter/login'; return; }
     const d = await res.json();
     $('dir').textContent = d.dir;
-    $('review').value = d.review || '';
-    $('urls').textContent = d.urls.length ? d.urls.join('   ') : 'Not connected to a network';
+    savedReview = d.review || '';
+    $('review').value = savedReview;
+    renderUrls(d.urls);
     for (const s of d.sessions) {
       const r = rows.get(s.folder) || {};
       Object.assign(r, { files: s.files, bytes: s.bytes, at: s.at });
@@ -123,12 +202,30 @@
     render();
   }
 
+  // The review link is a one-time setup, so the field stays locked until Edit is pressed.
+  function lockReview(locked) {
+    $('review').disabled = locked;
+    $('reviewEdit').hidden = !locked;
+    $('reviewSave').hidden = locked;
+    $('reviewCancel').hidden = locked;
+    if (!locked) $('review').focus();
+  }
+  $('reviewEdit').onclick = () => { $('reviewMsg').textContent = ''; lockReview(false); };
+  $('reviewCancel').onclick = () => { $('review').value = savedReview; $('reviewMsg').textContent = ''; lockReview(true); };
   $('reviewForm').onsubmit = async (e) => {
     e.preventDefault();
     const res = await fetch('/lab-counter/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: $('review').value }) });
     $('reviewMsg').classList.toggle('bad', !res.ok);
-    $('reviewMsg').textContent = res.ok ? 'Saved' : (await res.text()).trim();
+    if (!res.ok) { $('reviewMsg').textContent = (await res.text()).trim(); return; }
+    savedReview = $('review').value.trim();
+    $('review').value = savedReview;
+    $('reviewMsg').textContent = 'Saved';
+    lockReview(true);
   };
+  $('settingsBtn').onclick = () => $('settings').showModal();
+  $('settingsClose').onclick = () => $('settings').close();
+  $('settings').addEventListener('click', (e) => { if (e.target === $('settings')) $('settings').close(); });
+  $('settings').addEventListener('close', () => { $('review').value = savedReview; $('reviewMsg').textContent = ''; lockReview(true); });
 
   function beep() {
     const now = Date.now();
@@ -162,7 +259,11 @@
   $('more').onclick = () => { shown += PAGE; render(); };
 
   function paintSound() {
-    $('sound').textContent = soundOn ? 'Sound on' : 'Sound off';
+    $('sound').classList.toggle('on', soundOn);
+    $('sound').title = soundOn ? 'Sound on' : 'Sound off';
+    $('sound').setAttribute('aria-label', $('sound').title);
+    $('sndOn').hidden = !soundOn;
+    $('sndOff').hidden = soundOn;
     $('sound').setAttribute('aria-pressed', soundOn);
   }
   $('sound').onclick = () => {
