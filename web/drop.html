@@ -525,10 +525,16 @@
         width: 64px;
         height: 64px;
         border-radius: 50%;
-        background: var(--bar);
-        color: var(--btn-ink);
+        background: #16a34a;
+        color: #fff;
         display: grid;
         place-items: center;
+      }
+      @media (prefers-color-scheme: dark) {
+        .tick {
+          background: #3ddc84;
+          color: #05311a;
+        }
       }
       .tick .ic {
         width: 34px;
