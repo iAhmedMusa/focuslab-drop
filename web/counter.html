@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/drop/assets/app.css">
 <style>
   .top, .wrap { max-width: 760px; }
-  .top { position: sticky; top: 0; z-index: 5; background: var(--bg); }
+  .top { position: sticky; top: 0; z-index: 5; max-width: none; padding: 0 max(16px, calc((100% - 760px) / 2 + 16px)); background: var(--surface); border-bottom: 1px solid var(--line); }
   .ic { width: 22px; height: 22px; flex: none; }
   .icon-btn {
     display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0;
@@ -25,17 +25,20 @@
   .conn.bad { color: var(--err); font-weight: 600; }
   .conn.bad::before { background: var(--err); }
 
-  .link { display: grid; gap: 2px; padding: 8px 0 4px; font-size: .9rem; color: var(--muted); }
-  .link code { font: 500 .95rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); word-break: break-all; }
+  .link { display: grid; gap: 6px; padding: 16px 0 0; font-size: .9rem; color: var(--muted); }
+  .chip { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+  .chip code { flex: 1; min-width: 0; font: 500 .9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); word-break: break-all; user-select: all; }
+  .chip .btn { min-height: 36px; padding: 0 12px; flex: none; }
 
-  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 28px 0 8px; }
+  .panel { margin-top: 20px; padding: 4px 16px 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 0 8px; }
   h2 { font-size: 1.5rem; }
   .head span { font-size: .9rem; color: var(--muted); }
 
   .list { list-style: none; margin: 0; padding: 0; }
   .item {
     display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center;
-    padding: 14px 12px; margin: 0 -12px; border-bottom: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 14px 8px; margin: 0 -8px; border-bottom: 1px solid var(--line); border-radius: var(--r-sm);
     transition: background-color 1.2s ease-out;
   }
   .item:last-child { border-bottom-color: transparent; }
@@ -44,7 +47,7 @@
   .who { font-weight: 700; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .what { font-size: .88rem; color: var(--muted); }
   .more { display: block; margin: 16px auto 0; }
-  .empty { padding: 40px 16px; text-align: center; color: var(--muted); border: 1.5px dashed var(--line); border-radius: var(--r); }
+  .empty { padding: 32px 16px; text-align: center; color: var(--muted); }
 
   dialog {
     width: min(480px, calc(100% - 32px)); padding: 24px; border: 1px solid var(--line); border-radius: var(--r);
@@ -78,12 +81,14 @@
 </header>
 
 <main class="wrap">
-  <div class="link"><span>Customer link</span><code id="urls"></code></div>
+  <div class="link"><span>Customer link</span><div id="urls"></div></div>
 
-  <div class="head"><h2>Today</h2><span id="count"></span></div>
-  <ul id="list" class="list"></ul>
-  <button id="more" class="btn btn-ghost btn-small more" type="button" hidden></button>
-  <p id="empty" class="empty" hidden>No photos yet today. New uploads appear here as customers send them.</p>
+  <section class="panel">
+    <div class="head"><h2>Today</h2><span id="count"></span></div>
+    <ul id="list" class="list"></ul>
+    <button id="more" class="btn btn-ghost btn-small more" type="button" hidden></button>
+    <p id="empty" class="empty" hidden>No photos yet today. New uploads appear here as customers send them.</p>
+  </section>
 </main>
 
 <dialog id="settings" aria-labelledby="settingsTitle">
@@ -159,6 +164,27 @@
     $('count').textContent = rows.size ? rows.size + (rows.size === 1 ? ' customer' : ' customers') : '';
   }
 
+  function renderUrls(urls) {
+    if (!urls.length) { $('urls').textContent = 'Not connected to a network'; return; }
+    $('urls').replaceChildren(...urls.map((u) => {
+      const row = document.createElement('div');
+      row.className = 'chip';
+      const code = document.createElement('code');
+      code.textContent = u;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-ghost btn-small';
+      b.textContent = 'Copy';
+      b.onclick = async () => {
+        try { await navigator.clipboard.writeText(u); b.textContent = 'Copied'; }
+        catch (_) { getSelection().selectAllChildren(code); b.textContent = 'Press Ctrl+C'; }
+        setTimeout(() => { b.textContent = 'Copy'; }, 1500);
+      };
+      row.append(code, b);
+      return row;
+    }));
+  }
+
   async function load() {
     const res = await fetch('/lab-counter/api/info');
     if (res.status === 401) { location.href = '/lab-counter/login'; return; }
@@ -166,7 +192,7 @@
     $('dir').textContent = d.dir;
     savedReview = d.review || '';
     $('review').value = savedReview;
-    $('urls').textContent = d.urls.length ? d.urls.join('   ') : 'Not connected to a network';
+    renderUrls(d.urls);
     for (const s of d.sessions) {
       const r = rows.get(s.folder) || {};
       Object.assign(r, { files: s.files, bytes: s.bytes, at: s.at });
