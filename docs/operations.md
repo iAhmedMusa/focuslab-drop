@@ -19,7 +19,9 @@ The counter page lists today's folders. Older days stay on disk under `Prints/<d
 
 - Default login: `admin` / `admin`.
 - The counter page only opens on the counter computer itself, so the default password is not reachable from customer phones.
-- There is no screen to change the password yet. To reset to the default, quit the program, delete `users.db` (location in [setup.md](setup.md)), and start it again. It recreates `admin` / `admin`.
+- Change the password in the counter page: gear icon, **Staff password**, **Change password**. It needs the current password, and the new one must be 6+ characters and not `admin`. Other signed-in sessions are signed out. A banner shows until the default password is changed.
+- Forgot the password? Quit the program and clear the staff row, then start it again. It recreates `admin` / `admin`:
+  `sqlite3 users.db "DELETE FROM users"` (location of `users.db` in [setup.md](setup.md)). Do not delete the whole file, because it also holds the Google review link.
 
 ## Limits
 

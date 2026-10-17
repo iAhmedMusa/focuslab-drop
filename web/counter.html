@@ -30,6 +30,7 @@
   .chip code { flex: 1; min-width: 0; font: 500 .9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); word-break: break-all; user-select: all; }
   .chip .btn { min-height: 36px; padding: 0 12px; flex: none; }
 
+  .warn { display: block; width: 100%; margin-top: 8px; padding: 12px 14px; text-align: left; font: inherit; font-size: .9rem; color: var(--text); background: color-mix(in srgb, var(--err) 12%, transparent); border: 1px solid color-mix(in srgb, var(--err) 40%, transparent); border-radius: var(--r); cursor: pointer; }
   .panel { margin-top: 20px; padding: 4px 16px 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
   .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 0 8px; }
   h2 { font-size: 1.5rem; }
@@ -81,6 +82,8 @@
 </header>
 
 <main class="wrap">
+  <button id="warn" class="warn" type="button" hidden>The default password is still in use. Change it in Settings.</button>
+
   <div class="link"><span>Customer link</span><div id="urls"></div></div>
 
   <section class="panel">
@@ -106,6 +109,22 @@
       <button id="reviewSave" class="btn btn-primary btn-small" type="submit" hidden>Save</button>
       <button id="reviewCancel" class="btn btn-ghost btn-small" type="button" hidden>Cancel</button>
       <span id="reviewMsg" class="conn" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <form id="passForm" class="sec" autocomplete="off">
+    <h3>Staff password</h3>
+    <span class="hint">Used to sign in to this counter page. Username is admin.</span>
+    <div id="passFields" class="sec" style="padding:0;border:0" hidden>
+      <input id="pCur" type="password" placeholder="Current password" autocomplete="current-password" aria-label="Current password">
+      <input id="pNew" type="password" placeholder="New password (6+ characters)" autocomplete="new-password" aria-label="New password" minlength="6">
+      <input id="pNew2" type="password" placeholder="Repeat new password" autocomplete="new-password" aria-label="Repeat new password">
+    </div>
+    <div class="row">
+      <button id="passEdit" class="btn btn-ghost btn-small" type="button">Change password</button>
+      <button id="passSave" class="btn btn-primary btn-small" type="submit" hidden>Save</button>
+      <button id="passCancel" class="btn btn-ghost btn-small" type="button" hidden>Cancel</button>
+      <span id="passMsg" class="conn" aria-live="polite"></span>
     </div>
   </form>
 
@@ -190,6 +209,7 @@
     if (res.status === 401) { location.href = '/lab-counter/login'; return; }
     const d = await res.json();
     $('dir').textContent = d.dir;
+    $('warn').hidden = !d.defaultPass;
     savedReview = d.review || '';
     $('review').value = savedReview;
     renderUrls(d.urls);
@@ -222,10 +242,31 @@
     $('reviewMsg').textContent = 'Saved';
     lockReview(true);
   };
+  // Password change stays locked until "Change password" is pressed.
+  function lockPass(locked) {
+    $('passFields').hidden = locked;
+    $('passEdit').hidden = !locked;
+    $('passSave').hidden = locked;
+    $('passCancel').hidden = locked;
+    if (locked) $('passForm').reset(); else $('pCur').focus();
+  }
+  $('passEdit').onclick = () => { $('passMsg').textContent = ''; lockPass(false); };
+  $('passCancel').onclick = () => { $('passMsg').textContent = ''; lockPass(true); };
+  $('passForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const msg = (t, bad) => { $('passMsg').classList.toggle('bad', bad); $('passMsg').textContent = t; };
+    if ($('pNew').value !== $('pNew2').value) { msg('The new passwords do not match', true); return; }
+    const res = await fetch('/lab-counter/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ current: $('pCur').value, new: $('pNew').value }) });
+    if (!res.ok) { msg((await res.text()).trim(), true); return; }
+    lockPass(true);
+    $('warn').hidden = true;
+    msg('Password changed', false);
+  };
+  $('warn').onclick = () => $('settings').showModal();
   $('settingsBtn').onclick = () => $('settings').showModal();
   $('settingsClose').onclick = () => $('settings').close();
   $('settings').addEventListener('click', (e) => { if (e.target === $('settings')) $('settings').close(); });
-  $('settings').addEventListener('close', () => { $('review').value = savedReview; $('reviewMsg').textContent = ''; lockReview(true); });
+  $('settings').addEventListener('close', () => { lockPass(true); $('passMsg').textContent = ''; $('review').value = savedReview; $('reviewMsg').textContent = ''; lockReview(true); });
 
   function beep() {
     const now = Date.now();
