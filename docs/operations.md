@@ -9,6 +9,10 @@
 5. Turn on **Sound** (button at the top) to hear a beep when photos arrive. Browsers allow sound only after you click, so click once after opening the page.
 6. Stop with `Ctrl+C` in the terminal, or close the window.
 
+## Google review link
+
+Each shop sets its own link once. On the counter page, paste the shop's Google review link (`g.page`, `maps.app.goo.gl` or `google.com`) into **Google review link** and click **Save link**. Customers then see a review card on the done screen. Leave it empty to hide the card. The link is stored in the staff database, so it survives restarts and updates.
+
 The counter page lists today's folders. Older days stay on disk under `Prints/<date>/`.
 
 ## Staff login
