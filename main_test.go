@@ -320,3 +320,61 @@ func TestReviewLink(t *testing.T) {
 		t.Errorf("clear: %d %s", c, cfg())
 	}
 }
+
+func TestChangePassword(t *testing.T) {
+	s := testServer(t)
+	h := s.routes()
+	local := func(r *http.Request) { r.Host = "localhost:6789" }
+	login := func(pass string) *http.Cookie {
+		return cookieOf(do(h, "POST", "/lab-counter/login", "127.0.0.1:5000", func(r *http.Request) {
+			local(r)
+			r.Body = io.NopCloser(strings.NewReader(url.Values{"username": {"admin"}, "password": {pass}}.Encode()))
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		}), "fl_staff")
+	}
+	change := func(c *http.Cookie, cur, next string) int {
+		return do(h, "POST", "/lab-counter/password", "127.0.0.1:5000", func(r *http.Request) {
+			local(r)
+			if c != nil {
+				r.AddCookie(c)
+			}
+			r.Body = io.NopCloser(strings.NewReader(`{"current":"` + cur + `","new":"` + next + `"}`))
+		}).Code
+	}
+	a, b := login("admin"), login("admin") // two signed-in sessions
+	if a == nil || b == nil {
+		t.Fatal("default login failed")
+	}
+	if c := change(nil, "admin", "longenough"); c != 401 {
+		t.Errorf("without login: %d", c)
+	}
+	if c := change(a, "wrong", "longenough"); c != 403 {
+		t.Errorf("wrong current: %d", c)
+	}
+	for _, bad := range []string{"short", "admin"} {
+		if c := change(a, "admin", bad); c != 400 {
+			t.Errorf("new %q: %d", bad, c)
+		}
+	}
+	if c := change(a, "admin", "longenough"); c != 204 {
+		t.Fatalf("change: %d", c)
+	}
+	if login("admin") != nil {
+		t.Error("old password still works")
+	}
+	if login("longenough") == nil {
+		t.Error("new password rejected")
+	}
+	get := func(c *http.Cookie) int {
+		return do(h, "GET", "/lab-counter/api/info", "127.0.0.1:5000", func(r *http.Request) { local(r); r.AddCookie(c) }).Code
+	}
+	if get(a) != 200 {
+		t.Error("the session that changed the password was signed out")
+	}
+	if get(b) != 401 {
+		t.Error("another session survived the password change")
+	}
+	if w := do(h, "GET", "/lab-counter/api/info", "127.0.0.1:5000", func(r *http.Request) { local(r); r.AddCookie(a) }); !strings.Contains(w.Body.String(), `"defaultPass":false`) {
+		t.Errorf("defaultPass: %s", w.Body.String())
+	}
+}

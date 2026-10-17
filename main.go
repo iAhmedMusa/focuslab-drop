@@ -454,6 +454,47 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/lab-counter", http.StatusSeeOther)
 }
 
+const staffUser = "admin"
+
+// setPassword changes the staff password and signs out every other session.
+func (s *server) setPassword(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Current string `json:"current"`
+		New     string `json:"new"`
+	}
+	if json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&in) != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	if !s.checkLogin(staffUser, in.Current) {
+		time.Sleep(500 * time.Millisecond)
+		http.Error(w, "current password is wrong", http.StatusForbidden)
+		return
+	}
+	if len(in.New) < 6 || in.New == "admin" || in.New == in.Current {
+		http.Error(w, "use at least 6 characters, different from the old password and not \"admin\"", http.StatusBadRequest)
+		return
+	}
+	salt := make([]byte, 16)
+	rand.Read(salt)
+	if _, err := s.db.Exec(`UPDATE users SET salt = ?, hash = ? WHERE username = ?`, salt, hashPass(in.New, salt), staffUser); err != nil {
+		http.Error(w, "could not save", http.StatusInternalServerError)
+		return
+	}
+	keep := ""
+	if ck, err := r.Cookie("fl_staff"); err == nil {
+		keep = ck.Value
+	}
+	s.mu.Lock()
+	for t := range s.staff {
+		if t != keep {
+			delete(s.staff, t)
+		}
+	}
+	s.mu.Unlock()
+	w.WriteHeader(http.StatusNoContent)
+}
+
 var reviewHosts = map[string]bool{"g.page": true, "maps.app.goo.gl": true, "google.com": true, "www.google.com": true, "search.google.com": true}
 
 // validReview accepts an empty string (clears the link) or an https link on a Google host.
@@ -510,7 +551,7 @@ func (s *server) info(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"dir": s.dir, "urls": urls, "sessions": s.today(), "review": s.review()})
+	json.NewEncoder(w).Encode(map[string]any{"dir": s.dir, "urls": urls, "sessions": s.today(), "review": s.review(), "defaultPass": s.checkLogin(staffUser, "admin")})
 }
 
 func (s *server) publish(e event) {
@@ -629,6 +670,7 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("GET /lab-counter/api/info", s.counter(true, s.info))
 	mux.HandleFunc("POST /lab-counter/open", s.counter(true, s.open))
 	mux.HandleFunc("POST /lab-counter/review", s.counter(true, s.setReview))
+	mux.HandleFunc("POST /lab-counter/password", s.counter(true, s.setPassword))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := w.Header()
