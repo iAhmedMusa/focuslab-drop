@@ -262,3 +262,61 @@ func TestPageAssetsAreServed(t *testing.T) {
 		t.Errorf("removed shelf.jpg should be gone: %d", w.Code)
 	}
 }
+
+func TestReviewLink(t *testing.T) {
+	for v, want := range map[string]bool{
+		"": true,
+		"https://g.page/r/CeQwDhZHiq-DEBM/review":    true,
+		"https://maps.app.goo.gl/abc":                true,
+		"http://g.page/r/x/review":                   false,
+		"javascript:alert(1)":                        false,
+		"https://evil.com/g.page":                    false,
+		"https://g.page.evil.com/x":                  false,
+		"https://user@g.page/x":                      false,
+		"https://g.page/" + strings.Repeat("a", 500): false,
+	} {
+		if got := validReview(v); got != want {
+			t.Errorf("validReview(%q) = %v, want %v", v, got, want)
+		}
+	}
+
+	s := testServer(t)
+	h := s.routes()
+	local := func(r *http.Request) { r.Host = "localhost:6789" }
+	login := do(h, "POST", "/lab-counter/login", "127.0.0.1:5000", func(r *http.Request) {
+		local(r)
+		r.Body = io.NopCloser(strings.NewReader("username=admin&password=admin"))
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	})
+	ck := cookieOf(login, "fl_staff")
+	save := func(body string, c *http.Cookie) int {
+		return do(h, "POST", "/lab-counter/review", "127.0.0.1:5000", func(r *http.Request) {
+			local(r)
+			if c != nil {
+				r.AddCookie(c)
+			}
+			r.Body = io.NopCloser(strings.NewReader(body))
+		}).Code
+	}
+	cfg := func() string {
+		return strings.TrimSpace(do(h, "GET", "/drop/config", "192.168.1.9:5000", nil).Body.String())
+	}
+	if cfg() != `{"review":""}` {
+		t.Errorf("default config: %s", cfg())
+	}
+	if c := save(`{"url":"https://g.page/r/abc/review"}`, nil); c != 401 {
+		t.Errorf("save without login: %d", c)
+	}
+	if c := save(`{"url":"http://evil.com"}`, ck); c != 400 {
+		t.Errorf("bad link: %d", c)
+	}
+	if c := save(`{"url":" https://g.page/r/abc/review "}`, ck); c != 204 {
+		t.Fatalf("save: %d", c)
+	}
+	if cfg() != `{"review":"https://g.page/r/abc/review"}` {
+		t.Errorf("config after save: %s", cfg())
+	}
+	if c := save(`{"url":""}`, ck); c != 204 || cfg() != `{"review":""}` {
+		t.Errorf("clear: %d %s", c, cfg())
+	}
+}

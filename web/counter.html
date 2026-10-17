@@ -47,6 +47,12 @@
     <span><b>Customer link</b> <code id="urls"></code></span>
   </div>
 
+  <form id="reviewForm" class="info" style="margin-top:12px">
+    <label for="review"><b>Google review link</b> (shown to customers after they send photos; leave empty to hide)</label>
+    <input id="review" type="url" maxlength="500" placeholder="https://g.page/r/.../review" style="min-height:44px;padding:0 12px;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:var(--r)">
+    <span><button class="btn btn-ghost btn-small" type="submit">Save link</button> <span id="reviewMsg" class="conn" aria-live="polite"></span></span>
+  </form>
+
   <h2>Today</h2>
   <ul id="list" class="list"></ul>
   <button id="more" class="btn btn-ghost btn-small more" type="button" hidden></button>
@@ -106,6 +112,7 @@
     if (res.status === 401) { location.href = '/lab-counter/login'; return; }
     const d = await res.json();
     $('dir').textContent = d.dir;
+    $('review').value = d.review || '';
     $('urls').textContent = d.urls.length ? d.urls.join('   ') : 'Not connected to a network';
     for (const s of d.sessions) {
       const r = rows.get(s.folder) || {};
@@ -115,6 +122,13 @@
     }
     render();
   }
+
+  $('reviewForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch('/lab-counter/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: $('review').value }) });
+    $('reviewMsg').classList.toggle('bad', !res.ok);
+    $('reviewMsg').textContent = res.ok ? 'Saved' : (await res.text()).trim();
+  };
 
   function beep() {
     const now = Date.now();

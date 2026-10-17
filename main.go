@@ -454,6 +454,49 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/lab-counter", http.StatusSeeOther)
 }
 
+var reviewHosts = map[string]bool{"g.page": true, "maps.app.goo.gl": true, "google.com": true, "www.google.com": true, "search.google.com": true}
+
+// validReview accepts an empty string (clears the link) or an https link on a Google host.
+func validReview(v string) bool {
+	if v == "" {
+		return true
+	}
+	u, err := url.Parse(v)
+	return len(v) <= 500 && err == nil && u.Scheme == "https" && reviewHosts[strings.ToLower(u.Hostname())] && u.User == nil
+}
+
+func (s *server) review() string {
+	var v string
+	s.db.QueryRow(`SELECT value FROM settings WHERE key = 'review'`).Scan(&v)
+	return v
+}
+
+func (s *server) config(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
+	json.NewEncoder(w).Encode(map[string]string{"review": s.review()})
+}
+
+func (s *server) setReview(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		URL string `json:"url"`
+	}
+	if json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&in) != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	in.URL = strings.TrimSpace(in.URL)
+	if !validReview(in.URL) {
+		http.Error(w, "use an https link from Google (g.page, maps.app.goo.gl or google.com)", http.StatusBadRequest)
+		return
+	}
+	if _, err := s.db.Exec(`INSERT INTO settings (key, value) VALUES ('review', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`, in.URL); err != nil {
+		http.Error(w, "could not save", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *server) info(w http.ResponseWriter, r *http.Request) {
 	_, port, err := net.SplitHostPort(r.Host)
 	if err != nil {
@@ -467,7 +510,7 @@ func (s *server) info(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"dir": s.dir, "urls": urls, "sessions": s.today()})
+	json.NewEncoder(w).Encode(map[string]any{"dir": s.dir, "urls": urls, "sessions": s.today(), "review": s.review()})
 }
 
 func (s *server) publish(e event) {
@@ -575,6 +618,7 @@ func (s *server) routes() http.Handler {
 		w.Header().Set("Cache-Control", "public, max-age=86400")
 		files.ServeHTTP(w, r)
 	})
+	mux.HandleFunc("GET /drop/config", s.config)
 	mux.HandleFunc("POST /drop/start", s.start)
 	mux.HandleFunc("POST /drop/upload", s.upload)
 
@@ -584,6 +628,7 @@ func (s *server) routes() http.Handler {
 	mux.HandleFunc("GET /lab-counter/events", s.counter(true, s.events))
 	mux.HandleFunc("GET /lab-counter/api/info", s.counter(true, s.info))
 	mux.HandleFunc("POST /lab-counter/open", s.counter(true, s.open))
+	mux.HandleFunc("POST /lab-counter/review", s.counter(true, s.setReview))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := w.Header()
@@ -624,6 +669,9 @@ func initDB(file string) (*sql.DB, error) {
 	}
 	db.SetMaxOpenConns(1)
 	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, salt BLOB NOT NULL, hash BLOB NOT NULL)`); err != nil {
+		return nil, err
+	}
+	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)`); err != nil {
 		return nil, err
 	}
 	var n int
